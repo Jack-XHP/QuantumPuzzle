@@ -20,6 +20,7 @@ def reduceBySubstitution(J, J_3D, M):
                 J[i] = J_tmp[i]
         ancil_var -= 1
 
+
 # scale*center*(sum(neighbor) - target)^2
 def sumToN(center, neighbor, target, J, J_3D, scale=1):
     for ele in neighbor:
@@ -27,7 +28,7 @@ def sumToN(center, neighbor, target, J, J_3D, scale=1):
             term = (center, ele)
         else:
             term = (ele, center)
-
+        # for binary variable a^2 = a, thus a^2 - 2*target*a = -(2*target -1)a
         if term in J:
             J[term] -= (2 * target - 1) * scale
         else:
@@ -49,16 +50,19 @@ def sumToN(center, neighbor, target, J, J_3D, scale=1):
                     else:
                         J_3D[term] = weight
 
+
 #scale*(sum(neighbor) - target)^2
 def sumToN2(neighbor, target, J, scale=1):
     for ele1 in neighbor:
         for ele2 in neighbor:
             term = (ele1, ele2)
             if ele1 == ele2:
+                # for binary variable a^2 = a, thus a^2 - 2*target*a = -(2*target -1)a
                 weight = -2*target + 1
             elif ele1 > ele2:
                 continue
             else:
+                # 2ab term
                 weight = 2
             if term in J:
                 J[term] += weight * scale

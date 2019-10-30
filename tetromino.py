@@ -180,8 +180,8 @@ import minorminer
 solver_limit = 50
 
 G = nx.complete_graph(solver_limit)
-system = DWaveSampler()
-embedding = minorminer.find_embedding(G.edges, system.edgelist)
+#system = DWaveSampler()
+#embedding = minorminer.find_embedding(G.edges, system.edgelist)
 
 trueCount=0
 timeSum = 0

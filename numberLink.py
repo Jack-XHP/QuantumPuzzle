@@ -130,8 +130,8 @@ print(samples)
 print(energy)
 for i in range(len(samples)):
     result = samples[i]
-
     output = []
+    # ignore ancillary variables, which are all negative, only get positive bits
     for x in range(0, hight * width):
         output.append(result[x])
     output = np.array(output).reshape((hight, width))

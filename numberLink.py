@@ -1,10 +1,10 @@
-from dwave_qbsolv import QBSolv
-import numpy as np
-from dwave.system.samplers import DWaveSampler
-from dwave.system.composites import FixedEmbeddingComposite
 import minorminer
 import networkx as nx
 import numpy as np
+from dwave.system.composites import FixedEmbeddingComposite
+from dwave.system.samplers import DWaveSampler
+from dwave_qbsolv import QBSolv
+
 
 # xyz =min_w wx + M(yz - 2(y+z)w + 3w)
 # https://docs.dwavesys.com/docs/latest/c_handbook_3.html#reduction-by-substitution
@@ -13,7 +13,7 @@ def reduceBySubstitution(J, J_3D, M):
     for term in J_3D:
         weight = J_3D[term]
         weight_P = weight * M
-        J_tmp = {(ancil_var, term[0]):weight,
+        J_tmp = {(ancil_var, term[0]): weight,
                  (term[1], term[2]): weight_P,
                  (ancil_var, term[1]): -2 * weight_P,
                  (ancil_var, term[2]): -2 * weight_P,
@@ -63,7 +63,7 @@ def sumToN2(neighbor, target, J, scale=1):
             term = (ele1, ele2)
             if ele1 == ele2:
                 # for binary variable a^2 = a, thus a^2 - 2*target*a = -(2*target -1)a
-                weight = -2*target + 1
+                weight = -2 * target + 1
             elif ele1 > ele2:
                 continue
             else:
@@ -87,7 +87,7 @@ def sumLessOne(neighbor, J, scale=1):
                     J[term] = scale
 
 
-def oneLayer(origin, J,J_3D, grid):
+def oneLayer(origin, J, J_3D, grid):
     hight, width = grid.shape
     origin_var = [grid[index] for index in origin]
     origin = np.array(origin)
@@ -110,8 +110,8 @@ def oneLayer(origin, J,J_3D, grid):
             J[term] = weight
 
         # determine cell's neighbors
-        i = (x-grid[0,0]) // width
-        j = (x-grid[0,0]) % width
+        i = (x - grid[0, 0]) // width
+        j = (x - grid[0, 0]) % width
         near = []
         if j > 0:
             neighbor = grid[i][j - 1]
@@ -129,11 +129,11 @@ def oneLayer(origin, J,J_3D, grid):
         # allow 2 numbered neighbor for each cell with number
         if x in origin_var:
             # in case of origin, only one neighbor can be numbered
-            sumToN(x, near, 1, J,J_3D, scale=w_orinear)
+            sumToN(x, near, 1, J, J_3D, scale=w_orinear)
         else:
-            #distance = origin - [i, j]
-            #minD2Ori = np.min(np.sum(np.abs(distance), axis=1))
-            sumToN(x, near, 2, J,J_3D, scale=w_near)
+            # distance = origin - [i, j]
+            # minD2Ori = np.min(np.sum(np.abs(distance), axis=1))
+            sumToN(x, near, 2, J, J_3D, scale=w_near)
 
 
 if __name__ == "__main__":

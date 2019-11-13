@@ -17,15 +17,6 @@ def DisplayIn(In,m,n):
                 D[i,j]=HI[i//2*(n-1)+j//2]
     return D
     
-def ExpandGrid(In):
-    (yl,xl)=In.shape
-    Out=np.zeros((2*yl-1,2*xl-1),dtype='int32')
-    Out[:,1:-1:2]-=2
-    Out[1:-1:2,:]-=3
-    for i in range(0,yl):
-        for j in range(0,xl):
-            Out[2*i,2*j]=In[i,j]
-    return Out    
 # %% Test
     
 # Input

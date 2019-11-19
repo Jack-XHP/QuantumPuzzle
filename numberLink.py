@@ -2,6 +2,7 @@ import minorminer
 import networkx as nx
 import numpy as np
 from dwave.system.composites import FixedEmbeddingComposite
+from dwave.system.composites import EmbeddingComposite
 from dwave.system.samplers import DWaveSampler
 from dwave_qbsolv import QBSolv
 
@@ -142,7 +143,7 @@ if __name__ == "__main__":
     # 3 degree term
     J_3D = {}
 
-    depth, hight, width = (3, 4, 4)
+    depth, hight, width = (3, 5, 4)
     grid = np.arange(depth * hight * width).reshape((depth, hight, width))
     w_ori = -hight * width * 1000
     w_each = 0
@@ -185,12 +186,13 @@ if __name__ == "__main__":
     print(J)
 
     if use_qpu:
-        solver_limit = 50
-        G = nx.complete_graph(solver_limit)
-        system = DWaveSampler()
-        embedding = minorminer.find_embedding(G.edges, system.edgelist)
-        print(embedding)
-        res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit)
+        # solver_limit = 50
+        # G = nx.complete_graph(solver_limit)
+        #system = DWaveSampler()
+        #embedding = minorminer.find_embedding(J.keys(), system.edgelist)
+        #print(embedding)
+        # res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit)
+        res = EmbeddingComposite(DWaveSampler()).sample_qubo(J, num_reads=10000)
     else:
         res = QBSolv().sample_qubo(J, num_repeats=1000)
     samples = list(res.samples())

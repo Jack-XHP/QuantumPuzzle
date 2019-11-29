@@ -1,6 +1,11 @@
 from dwave_qbsolv import QBSolv
 import matplotlib.pyplot as plt
 import numpy as np
+import minorminer
+import networkx as nx
+from dwave.system.composites import FixedEmbeddingComposite
+from dwave.system.composites import EmbeddingComposite
+from dwave.system.samplers import DWaveSampler
 # Functions    
 def mapseq(F):
     S=np.zeros(F.shape[0])
@@ -8,12 +13,10 @@ def mapseq(F):
         S[i]=np.asscalar(np.where(F[i,:]==1)[0])
     return S
 # Input
-r=18
-In=x=np.array([[ 0, 0, 0, 0,-1],
-               [ 0, 0,-1, 0, 0],
-               [ 0, 0, 0, 0, 0],
-               [ 1, 0, 0, 0, 1],
-               [ 0, 0, 0, 0, 0]])
+r=8
+In=x=np.array([[ 0, 0, 0, 0],
+               [ 0, 0,-1, 1],
+               [ 0, 0, 1, 0]])
 # Exrtraxt Dimenssions
 (m,n)=In.shape
 # Declare Coefficients
@@ -131,7 +134,18 @@ for i in range(r*m*n):
         elif i==j:
             D[(i,j)]= Coefficients[i,j]
 # Solve the Puzzle
-res = QBSolv().sample_qubo(D,num_repeats=10000)
+use_qpu=True
+if use_qpu:
+    # solver_limit = 50
+    # G = nx.complete_graph(solver_limit)
+    #system = DWaveSampler()
+    #embedding = minorminer.find_embedding(J.keys(), system.edgelist)
+    #print(embedding)
+    # res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit)
+    Emb = EmbeddingComposite(DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218'))
+    res = Emb.sample_qubo(D, num_reads=10)
+else:
+    res = QBSolv().sample_qubo(D,num_repeats=40)
 samples = list(res.samples())
 energy = list(res.data_vectors['energy'])
 print(samples)

@@ -13,9 +13,10 @@ def mapseq(F):
         S[i]=np.asscalar(np.where(F[i,:]==1)[0])
     return S
 # Input
-r=8
+r=16
 In=x=np.array([[ 0, 0, 0, 0],
-               [ 0, 0,-1, 1],
+               [ 1, 0, 0, 1],
+               [ 0, 0,-1, 0],
                [ 0, 0, 1, 0]])
 # Exrtraxt Dimenssions
 (m,n)=In.shape
@@ -136,16 +137,16 @@ for i in range(r*m*n):
 # Solve the Puzzle
 use_qpu=True
 if use_qpu:
-    # solver_limit = 50
-    # G = nx.complete_graph(solver_limit)
-    #system = DWaveSampler()
-    #embedding = minorminer.find_embedding(J.keys(), system.edgelist)
-    #print(embedding)
-    # res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit)
-    Emb = EmbeddingComposite(DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218'))
-    res = Emb.sample_qubo(D, num_reads=10)
+    solver_limit = 256
+    G = nx.complete_graph(solver_limit)
+    system = DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218')
+    embedding = minorminer.find_embedding(D.keys(), system.edgelist)
+    print(embedding)
+    res = QBSolv().sample_qubo(D, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit,token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218', num_reads=20)
+    #Emb = EmbeddingComposite(DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218'))
+    #res = Emb.sample_qubo(D, num_reads=10000)
 else:
-    res = QBSolv().sample_qubo(D,num_repeats=40)
+    res = QBSolv().sample_qubo(D,num_repeats=20)
 samples = list(res.samples())
 energy = list(res.data_vectors['energy'])
 print(samples)

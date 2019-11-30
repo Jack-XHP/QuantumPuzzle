@@ -1,0 +1,135 @@
+Input:
+
+    cube0 = {'left': 'r', 'right': 'g', 'back': 'b', 'front': 'y', 'bottom': 'r', 'top': 'r'}
+    cube1 = {'left': 'r', 'right': 'b', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'r'}
+    cube2 = {'left': 'b', 'right': 'r', 'back': 'y', 'front': 'b', 'bottom': 'g', 'top': 'g'}
+    cube3 = {'left': 'g', 'right': 'r', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'b'}
+
+QPU Output:
+
+Energy = -96.0
+constraint violations = {'total': 0, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 0, 'edge': 0}
+=======================================================================================
+Energy = -96.0
+constraint violations = {'total': 0, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 0, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 3, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 1}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 1, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 3, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 5, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 1}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -93.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -93.0
+constraint violations = {'total': 6, 'A/B exclusion': 0, 'edge/vertex inclusion': 2, 'colour': 3, 'edge': 1}
+=======================================================================================
+Energy = -93.0
+constraint violations = {'total': 5, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 5, 'edge': 0}
+=======================================================================================
+Energy = -93.0
+constraint violations = {'total': 6, 'A/B exclusion': 0, 'edge/vertex inclusion': 2, 'colour': 4, 'edge': 0}
+=======================================================================================
+Energy = -93.0
+constraint violations = {'total': 6, 'A/B exclusion': 0, 'edge/vertex inclusion': 2, 'colour': 4, 'edge': 0}
+=======================================================================================
+Energies = [-96.0, -96.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -94.0, -94.0, -94.0, -94.0, -94.0, -93.0, -93.0, -93.0, -93.0, -93.0]
+
+Simulation Output:
+
+Sampling with classical solver...
+Energy = -96.0
+constraint violations = {'total': 0, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 0, 'edge': 0}
+=======================================================================================
+Energy = -96.0
+constraint violations = {'total': 0, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 0, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 1, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 1, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -95.0
+constraint violations = {'total': 2, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 2, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 5, 'A/B exclusion': 0, 'edge/vertex inclusion': 0, 'colour': 4, 'edge': 1}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 5, 'A/B exclusion': 0, 'edge/vertex inclusion': 2, 'colour': 2, 'edge': 1}
+=======================================================================================
+Energy = -94.0
+constraint violations = {'total': 4, 'A/B exclusion': 0, 'edge/vertex inclusion': 1, 'colour': 3, 'edge': 0}
+=======================================================================================
+Energies = [-96.0, -96.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -95.0, -94.0, -94.0, -94.0, -94.0, -94.0]

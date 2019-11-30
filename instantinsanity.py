@@ -32,12 +32,40 @@ def sumToN2(neighbor, target, Q, scale=1):
 def edge_vertex_inclusion(edge, vertices, Q, scale=1):
 
     vertices = np.unique(vertices)  # some edges are to the same colour, we don't want to double count them
-    for ele1 in vertices:
-        term = (edge, ele1)
+    for v in vertices:
+        term = (edge, v)
         if term in Q:
             Q[term] += scale
         else:
             Q[term] = scale
+
+    # target = vertices.shape[0]
+    # term = (edge, edge)
+    # if target == 1:
+    #     scale = 4 * scale
+    # if term in Q:
+    #     Q[term] += scale * target**2
+    # else:
+    #     Q[term] = scale * target**2
+    # for v1 in vertices:
+    #     term = (edge, v1)
+    #     weight = 2 * target
+    #     if term in Q:
+    #         Q[term] -= weight * scale
+    #     else:
+    #         Q[term] = -weight * scale
+    #     for v2 in vertices:
+    #         term = (v1, v2)
+    #         if v1 > v2:
+    #             continue
+    #         elif v1 == v2:
+    #             weight = 1
+    #         else:
+    #             weight = 2
+    #         if term in Q:
+    #             Q[term] += weight * scale
+    #         else:
+    #             Q[term] = weight * scale
 
 
 # including an edge in subgraph A should exclude it from subgraph B
@@ -103,7 +131,7 @@ def plot_problem(cubes, edges):
     return fig1, axs1
 
 
-def plot_solution(soln):
+def plot_solution(soln, save=False):
 
     lims = (0, 3, 2.5, 4.5)
     (x_min, x_max, y_min, y_max) = lims
@@ -169,7 +197,8 @@ def plot_solution(soln):
         ax.axis('off')
 
     fig2.tight_layout()
-    fig2.savefig('result/instantinsanity/soln_problem1_subgraphs.png', dpi=400)
+    if save:
+        fig2.savefig('result/instantinsanity/soln_problem1_subgraphs.png', dpi=400)
     fig2.show()
 
     lbls = ['', 'Left', 'Right', 'Back', 'Front']
@@ -197,7 +226,8 @@ def plot_solution(soln):
         ax.axis('off')
 
     fig3.tight_layout()
-    fig3.savefig('result/instantinsanity/soln_problem1.png', dpi=400)
+    if save:
+        fig3.savefig('result/instantinsanity/soln_problem1.png', dpi=400)
     fig3.show()
 
     return fig2, axs2, fig3, axs3
@@ -245,7 +275,7 @@ def graph_plot(axes, e1, e2, lims=(6, 9, 2.5, 4.5), lbl_edge=None):
     return axes
 
 
-def check_constraints(proposal):
+def check_constraints(proposal, save=False):
     """
     Given a solution (array of binary variables), returns dictionary containing counts of constraint violations
     :param proposal: array of binary variables proposed as a solution to the problem instance
@@ -284,12 +314,13 @@ def check_constraints(proposal):
 
     # each subgraph has all four colours each with degree 2
     colour_counts = colour_counts.reshape((n, offset))[:, 6:]
+    print(colour_counts)
     c_count = np.count_nonzero((np.sum(colour_counts, axis=0) != 2))
     violations['total'] += c_count
     violations['colour'] = c_count
 
     # one and only one edge from each cube in a subgraph
-    e_count = np.count_nonzero((np.sum(subgraphAe, axis=1) != 1)) + np.count_nonzero((np.sum(subgraphAe, axis=1) != 1))
+    e_count = np.count_nonzero((np.sum(subgraphAe, axis=1) != 1)) + np.count_nonzero((np.sum(subgraphBe, axis=1) != 1))
     violations['total'] += e_count
     violations['edge'] = e_count
 
@@ -297,10 +328,20 @@ def check_constraints(proposal):
 
     # plot solution if problem instance has n = 4, and no violations
     soln = np.concatenate((edges_r, colours_r * 0), axis=1).flatten()
-    if n == 4 and violations['total'] == 0:
-        _, _, _, _ = plot_solution(soln)
+    if n == 4: # and violations['total'] == 0:
+        _, _, _, _ = plot_solution(soln, save=save)
 
     return violations
+
+
+def get_pos_bits(state):
+    result_arr = []
+    for key in state.sample.keys():
+        if key < 0:
+            continue
+        else:
+            result_arr.append(state.sample[key])
+    return np.array(result_arr)
 
 
 if __name__ == "__main__":
@@ -336,40 +377,44 @@ if __name__ == "__main__":
 
     # use qpu or not
     use_qpu = False
+    #use_qpu = True
     use_best = True
 
     if use_qpu or not use_best:
         # penalty weights
-        w_ve = -500  # edge inclusion implies vertex inclusion, classical = -100
-        w_ab = 5000  # edge in subgraph A should exclude it from subgraph B, classical = 1000
-        w_colour = 190  # each subgraph has all four colours, classical = 100
-        w_cube = 4500  # one and only one edge from each cube in a subgraph, classical = 200
-        (w_ve, w_ab, w_colour, w_cube) = (-500, 1000, 100, 400)
+        w_ev = 1  # edge inclusion implies vertex inclusion
+        w_ab = 1  # edge in subgraph A should exclude it from subgraph B
+        w_colour = 1  # each subgraph has all four colours
+        w_cube = 1  # one and only one edge from each cube in a subgraph
+        (w_ev, w_ab, w_colour, w_cube) = (-1, 10, 1, 2)
     else:
-        (w_ve, w_ab, w_colour, w_cube) = (-100, 1000, 100, 200)
+        (w_ev, w_ab, w_colour, w_cube) = (-1, 10, 1, 2)
 
     # Build QUBO
+
+    for i in range(n_bits):
+        term = (i, i)
+        if i % offset > 5:
+            Q[term] = 0  # biases are 0
+        else:
+            Q[term] = 0  # edge biases are zero
+
     # CONSTRAINT: edge inclusion implies vertex inclusion
     for i, cube in enumerate(cubes):
 
         for j, edge in enumerate(edges):
 
             # subgraph A
-            edge_idx = 2 * j + i * offset # index of the current edge node (for subgraph A i.e. even indices)
+            edge_idx = 2 * j + i * offset  # index of the current edge node (for subgraph A i.e. even indices)
             vertices = np.array([n_sides + 2 * colours[cube[v]] + i * offset for v in edge])
-            edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ve)
+            edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ev)
             edge_mappings[edge_idx] = [i, edge, np.copy(vertices)]
 
             # subgraph B - just odd indices i.e. increment by 1
             edge_idx += 1
             vertices += 1
-            edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ve)
+            edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ev)
             edge_mappings[edge_idx] = [i, edge, np.copy(vertices)]
-
-    # biases are zero
-    for i in range(n_bits):
-        term = (i, i)
-        Q[term] = 0
 
     # CONSTRAINT: including an edge in subgraph A should exclude it from subgraph B
     ab_exclusion(n, Q, w_ab=w_ab)
@@ -406,31 +451,31 @@ if __name__ == "__main__":
 
     if use_qpu:
         print('Sampling with QPU...')
-        res = EmbeddingComposite(DWaveSampler()).sample_qubo(Q, num_reads=50)
+        res = EmbeddingComposite(DWaveSampler()).sample_qubo(Q, num_reads=500)
     else:
         print('Sampling with classical solver...')
-        res = QBSolv().sample_qubo(Q, num_repeats=100)
+        res = QBSolv().sample_qubo(Q, num_repeats=500)
 
     # check constraints
     samples = list(res.samples())
     energy = list(res.data_vectors['energy'])
     result = res.first
     min_energy = result.energy
-    result_arr = np.array([result.sample[key] for key in result.sample.keys()])
-    violations = check_constraints(result_arr)
+    result_arr = np.array([result.sample[key] for key in result.sample.keys()])  #get_pos_bits(result)
+    violations = check_constraints(result_arr, save=False)
     print('Minimum Energy = {}'.format(min_energy))
     print(violations)
+    print('=======================================================================================')
 
-    # for sample in samples:
-    #     sample_arr = sample
     i = 0
-    n_print = 10
+    n_print = 0
     for sample in res.data(fields=['sample', 'energy'], sorted_by='energy'):
         if i < n_print:
-            sample_arr = np.array([sample.sample[key] for key in sample.sample.keys()])
-            violations = check_constraints(sample_arr)
+            sample_arr = get_pos_bits(sample)
+            violations = check_constraints(sample_arr, save=False)
             print('Energy = {}'.format(sample.energy))
             print(violations)
+            print('=======================================================================================')
         i += 1
 
 

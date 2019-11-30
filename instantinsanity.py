@@ -28,19 +28,6 @@ def sumToN2(neighbor, target, Q, scale=1):
                 Q[term] = weight * scale
 
 
-# sum xi * xj, where xi in neighbor and i != j, has minimum when at most one xi = 0
-def sumLessOne(neighbor, Q, scale=1):
-
-    for ele1 in neighbor:
-        for ele2 in neighbor:
-            term = (ele1, ele2)
-            if ele1 < ele2:
-                if term in Q:
-                    Q[term] += scale
-                else:
-                    Q[term] = scale
-
-
 # including an edge should force inclusion of vertices
 def edge_vertex_inclusion(edge, vertices, Q, scale=1):
 
@@ -61,12 +48,11 @@ def ab_exclusion(n, Q, w_ab=1):
         for j in range(0, 2 * n_edges, 2):
 
             idx = j + i * offset
-            terms = [(idx, idx + 1), (idx + 1, idx)]
-            for term in terms:
-                if term in Q:
-                    Q[term] += w_ab
-                else:
-                    Q[term] = w_ab
+            term = (idx, idx + 1)
+            if term in Q:
+                Q[term] += w_ab
+            else:
+                Q[term] = w_ab
 
 
 def plot_problem(cubes, edges):
@@ -78,7 +64,7 @@ def plot_problem(cubes, edges):
     x_min = 6
     y_min = 2.5
     y_max = 4.5
-    colours = {'r': (x_min, y_max, '#ff0000'), 'g': (x_min, y_min, '#008000'), 'b': (x_max, y_min, '#0000ff'), 'y': (x_max, y_max, '#ffff00')}
+    colours = {'r': (x_min, y_max, '#FF4365'), 'g': (x_min, y_min, '#AACF90'), 'b': (x_max, y_min, '#8FAAD9'), 'y': (x_max, y_max, '#EAC435')}
     off = 0.3
     annotes = {'r': (6 - 3*off, 5), 'g': (6 - 3*off, 2 - off), 'b': (9 + off, 2 - off), 'y': (9 + off, 5)}
 
@@ -117,12 +103,12 @@ def plot_problem(cubes, edges):
     return fig1, axs1
 
 
-def plot_solution(soln, cubes, edge_map):
+def plot_solution(soln):
 
     lims = (0, 3, 2.5, 4.5)
     (x_min, x_max, y_min, y_max) = lims
     off = 0.3
-    colours = {'r': (x_min, y_max, '#ff0000'), 'g': (x_min, y_min, '#008000'), 'b': (x_max, y_min, '#0000ff'), 'y': (x_max, y_max, '#ffff00')}
+    colours = {'r': (x_min, y_max, '#FF4365'), 'g': (x_min, y_min, '#AACF90'), 'b': (x_max, y_min, '#8FAAD9'), 'y': (x_max, y_max, '#EAC435')}
     annotes = {'r': (x_min - 2 * off, y_max), 'g': (x_min - 2 * off, y_min - off), 'b': (x_max + off, y_min - off), 'y': (x_max + off, y_max)}
 
     edge_idxs = np.where(soln == 1)[0]
@@ -138,8 +124,8 @@ def plot_solution(soln, cubes, edge_map):
     fig2, axs2 = plt.subplots(1, 2, figsize=(20, 6))
 
     for idx in edge_idxs:
-        cube = cubes[edge_map[idx][0]]
-        edge = edge_map[idx][1]
+        cube = cubes[edge_mappings[idx][0]]
+        edge = edge_mappings[idx][1]
         (c1, c2) = (cube[edge[0]], cube[edge[1]])
         if idx % 2 == 0:
             if (c1 not in left and c2 not in right) or len(left) == 0:
@@ -149,9 +135,11 @@ def plot_solution(soln, cubes, edge_map):
                 left.append(c2)
                 right.append(c1)
             else:
-                print('Colour violation.')
-                return edge_map[idx][0]
-            graph_plot(axs2[0], c1, c2, lims=lims, lbl_edge=str(edge_map[idx][0] + 1))
+                left.append(c2)
+                right.append(c1)
+                print('Solution is incorrect.')
+                #return edge_mappings[idx][0], None, None, None
+            graph_plot(axs2[0], c1, c2, lims=lims, lbl_edge=str(edge_mappings[idx][0] + 1))
         else:
             if (c1 not in back and c2 not in front) or len(back) == 0:
                 back.append(c1)
@@ -160,9 +148,11 @@ def plot_solution(soln, cubes, edge_map):
                 back.append(c2)
                 front.append(c1)
             else:
-                print('Colour violation.')
-                return edge_map[idx][0]
-            graph_plot(axs2[1], c1, c2, lims=lims, lbl_edge=str(edge_map[idx][0] + 1))
+                back.append(c2)
+                front.append(c1)
+                print('Solution is incorrect.')
+                #return edge_mappings[idx][0], None, None, None
+            graph_plot(axs2[1], c1, c2, lims=lims, lbl_edge=str(edge_mappings[idx][0] + 1))
 
     lbls = ['Subgraph A - Left/Right', 'Subgraph B - Front/Back']
     for i, ax in enumerate(axs2):
@@ -217,8 +207,8 @@ def graph_plot(axes, e1, e2, lims=(6, 9, 2.5, 4.5), lbl_edge=None):
 
     (x_min, x_max, y_min, y_max) = lims
 
-    colours = {'r': (x_min, y_max, '#ff0000'), 'g': (x_min, y_min, '#008000'), 'b': (x_max, y_min, '#0000ff'),
-               'y': (x_max, y_max, '#ffff00')}
+    colours = {'r': (x_min, y_max, '#FF4365'), 'g': (x_min, y_min, '#AACF90'), 'b': (x_max, y_min, '#8FAAD9'),
+               'y': (x_max, y_max, '#EAC435')}
     (x1, y1, _) = colours[e1]
     (x2, y2, _) = colours[e2]
     if e1 == e2:  # edge from node to itself
@@ -237,7 +227,7 @@ def graph_plot(axes, e1, e2, lims=(6, 9, 2.5, 4.5), lbl_edge=None):
         loop = Circle(center, r, facecolor=None, lw=2, fill=False, edgecolor='k', zorder=0.1)
         axes.add_patch(loop)
         if lbl_edge:
-            axes.annotate(lbl_edge, xy)
+            axes.annotate(lbl_edge, (center[0] - 1.1 * r, center[1]))
     else:
         x = [x1, x2]
         y = [y1, y2]
@@ -254,16 +244,71 @@ def graph_plot(axes, e1, e2, lims=(6, 9, 2.5, 4.5), lbl_edge=None):
 
     return axes
 
+
+def check_constraints(proposal):
+    """
+    Given a solution (array of binary variables), returns dictionary containing counts of constraint violations
+    :param proposal: array of binary variables proposed as a solution to the problem instance
+    :return violations: dictionary containing constraint violation counts
+    """
+
+    violations = {}
+    proposal_2D = proposal.reshape((n, offset))
+    edges_r = proposal_2D[:, 0:6]
+    colours_r = proposal_2D[:, 6:]
+    colour_counts = np.zeros(proposal.shape)
+
+    # edge/colour indices for subgraphs
+    Ae = np.arange(0, n_sides, 2)
+    Be = np.arange(1, n_sides, 2)
+
+    # subgraph arrays
+    subgraphAe = proposal_2D[:, Ae]
+    subgraphBe = proposal_2D[:, Be]
+
+    # edge in subgraph A should exclude it from subgraph B
+    ab_count = np.count_nonzero((subgraphAe * subgraphBe))
+    violations['total'] = ab_count
+    violations['A/B exclusion'] = ab_count
+
+    # edge inclusion implies vertex inclusion
+    in_count = 0
+    for edge_idx in edge_mappings.keys():
+        if proposal[edge_idx]:
+            c_idxs = edge_mappings[edge_idx][2]
+            for c_idx in c_idxs:
+                colour_counts[c_idx] += proposal[c_idx]
+            in_count += np.count_nonzero((proposal[c_idxs] != 1))
+    violations['total'] += in_count
+    violations['edge/vertex inclusion'] = in_count
+
+    # each subgraph has all four colours each with degree 2
+    colour_counts = colour_counts.reshape((n, offset))[:, 6:]
+    c_count = np.count_nonzero((np.sum(colour_counts, axis=0) != 2))
+    violations['total'] += c_count
+    violations['colour'] = c_count
+
+    # one and only one edge from each cube in a subgraph
+    e_count = np.count_nonzero((np.sum(subgraphAe, axis=1) != 1)) + np.count_nonzero((np.sum(subgraphAe, axis=1) != 1))
+    violations['total'] += e_count
+    violations['edge'] = e_count
+
+
+
+    # plot solution if problem instance has n = 4, and no violations
+    soln = np.concatenate((edges_r, colours_r * 0), axis=1).flatten()
+    if n == 4 and violations['total'] == 0:
+        _, _, _, _ = plot_solution(soln)
+
+    return violations
+
+
 if __name__ == "__main__":
 
     # initialize qubo problem
     Q = {}
 
     plt.rcParams.update({'font.size': 22})
-
-    # use qpu or not
-    use_qpu = False
-    use_best = True
 
     # Define problem
     n = 4  # number of cubes/colours
@@ -286,8 +331,12 @@ if __name__ == "__main__":
     cube3 = {'left': 'g', 'right': 'r', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'b'}
     edge_mappings = {}
     cubes = [cube0, cube1, cube2, cube3]
-    if n == 4:
+    if n == 3:
         _, _ = plot_problem(cubes, edges)
+
+    # use qpu or not
+    use_qpu = False
+    use_best = True
 
     if use_qpu or not use_best:
         # penalty weights
@@ -295,6 +344,7 @@ if __name__ == "__main__":
         w_ab = 5000  # edge in subgraph A should exclude it from subgraph B, classical = 1000
         w_colour = 190  # each subgraph has all four colours, classical = 100
         w_cube = 4500  # one and only one edge from each cube in a subgraph, classical = 200
+        (w_ve, w_ab, w_colour, w_cube) = (-500, 1000, 100, 400)
     else:
         (w_ve, w_ab, w_colour, w_cube) = (-100, 1000, 100, 200)
 
@@ -308,13 +358,13 @@ if __name__ == "__main__":
             edge_idx = 2 * j + i * offset # index of the current edge node (for subgraph A i.e. even indices)
             vertices = np.array([n_sides + 2 * colours[cube[v]] + i * offset for v in edge])
             edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ve)
-            edge_mappings[edge_idx] = [i, edge, vertices]
+            edge_mappings[edge_idx] = [i, edge, np.copy(vertices)]
 
             # subgraph B - just odd indices i.e. increment by 1
             edge_idx += 1
             vertices += 1
             edge_vertex_inclusion(edge_idx, vertices, Q, scale=w_ve)
-            edge_mappings[edge_idx] = [i, edge, vertices]
+            edge_mappings[edge_idx] = [i, edge, np.copy(vertices)]
 
     # biases are zero
     for i in range(n_bits):
@@ -356,28 +406,31 @@ if __name__ == "__main__":
 
     if use_qpu:
         print('Sampling with QPU...')
-        res = EmbeddingComposite(DWaveSampler()).sample_qubo(Q, num_reads=100)
+        res = EmbeddingComposite(DWaveSampler()).sample_qubo(Q, num_reads=50)
     else:
         print('Sampling with classical solver...')
-        res = QBSolv().sample_qubo(Q, num_repeats=1000)
+        res = QBSolv().sample_qubo(Q, num_repeats=100)
 
     # check constraints
     samples = list(res.samples())
     energy = list(res.data_vectors['energy'])
     result = res.first
     min_energy = result.energy
-    result = np.array([result.sample[key] for key in result.sample.keys()])
-    result = result.reshape((n, offset))
-    edges_r = result[:, 0:6]
-    colours_r = result[:, 6:]
-    soln = np.concatenate((edges_r, colours_r * 0), axis=1).flatten()
-    if n == 4:
-        _, _, _, _ = plot_solution(soln, cubes, edge_mappings)
-    print(edges_r)
-    print(colours_r)
+    result_arr = np.array([result.sample[key] for key in result.sample.keys()])
+    violations = check_constraints(result_arr)
+    print('Minimum Energy = {}'.format(min_energy))
+    print(violations)
 
-
-
-
+    # for sample in samples:
+    #     sample_arr = sample
+    i = 0
+    n_print = 10
+    for sample in res.data(fields=['sample', 'energy'], sorted_by='energy'):
+        if i < n_print:
+            sample_arr = np.array([sample.sample[key] for key in sample.sample.keys()])
+            violations = check_constraints(sample_arr)
+            print('Energy = {}'.format(sample.energy))
+            print(violations)
+        i += 1
 
 

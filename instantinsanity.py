@@ -39,34 +39,6 @@ def edge_vertex_inclusion(edge, vertices, Q, scale=1):
         else:
             Q[term] = scale
 
-    # target = vertices.shape[0]
-    # term = (edge, edge)
-    # if target == 1:
-    #     scale = 4 * scale
-    # if term in Q:
-    #     Q[term] += scale * target**2
-    # else:
-    #     Q[term] = scale * target**2
-    # for v1 in vertices:
-    #     term = (edge, v1)
-    #     weight = 2 * target
-    #     if term in Q:
-    #         Q[term] -= weight * scale
-    #     else:
-    #         Q[term] = -weight * scale
-    #     for v2 in vertices:
-    #         term = (v1, v2)
-    #         if v1 > v2:
-    #             continue
-    #         elif v1 == v2:
-    #             weight = 1
-    #         else:
-    #             weight = 2
-    #         if term in Q:
-    #             Q[term] += weight * scale
-    #         else:
-    #             Q[term] = weight * scale
-
 
 # including an edge in subgraph A should exclude it from subgraph B
 def ab_exclusion(n, Q, w_ab=1):
@@ -453,7 +425,7 @@ if __name__ == "__main__":
     else:
         print('Sampling with classical solver...')
         sampler = 'sim'
-        res = QBSolv().sample_qubo(Q, num_repeats=1000)
+        res = QBSolv().sample_qubo(Q, num_repeats=10)
 
     # check constraints
     samples = list(res.samples())
@@ -467,8 +439,8 @@ if __name__ == "__main__":
         if num < n_print:
             sample_arr = np.array([sample.sample[key] for key in sample.sample.keys()])
             violations = check_constraints(sample_arr,
-                                           save=None, #save='result/instantinsanity/soln_problem{0}{1}'.format(num, sampler),
-                                           plot_soln=False)
+                                           save='result/instantinsanity/nonsoln_problem{0}{1}'.format(num, sampler),
+                                           plot_soln=True)
             energy = sample.energy
 
             if num ==0:

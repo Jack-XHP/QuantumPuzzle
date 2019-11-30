@@ -1,9 +1,10 @@
 import numpy as np
 import networkx as nx
+import minorminer
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.collections import PatchCollection
-from dwave.system.composites import EmbeddingComposite
+from dwave.system.composites import EmbeddingComposite, FixedEmbeddingComposite
 from dwave.system.samplers import DWaveSampler
 from dwave_qbsolv import QBSolv
 
@@ -328,20 +329,10 @@ def check_constraints(proposal, save=False):
 
     # plot solution if problem instance has n = 4, and no violations
     soln = np.concatenate((edges_r, colours_r * 0), axis=1).flatten()
-    if n == 4: # and violations['total'] == 0:
+    if n == 4 and violations['total'] == 0:
         _, _, _, _ = plot_solution(soln, save=save)
 
     return violations
-
-
-def get_pos_bits(state):
-    result_arr = []
-    for key in state.sample.keys():
-        if key < 0:
-            continue
-        else:
-            result_arr.append(state.sample[key])
-    return np.array(result_arr)
 
 
 if __name__ == "__main__":
@@ -377,7 +368,7 @@ if __name__ == "__main__":
 
     # use qpu or not
     use_qpu = False
-    #use_qpu = True
+    use_qpu = True
     use_best = True
 
     if use_qpu or not use_best:
@@ -451,24 +442,25 @@ if __name__ == "__main__":
 
     if use_qpu:
         print('Sampling with QPU...')
-        res = EmbeddingComposite(DWaveSampler()).sample_qubo(Q, num_reads=500)
+        solver_limit = 56
+        G = nx.complete_graph(solver_limit)
+        system = DWaveSampler()
+        embedding = minorminer.find_embedding(Q.keys(), system.edgelist)
+        print(embedding)
+        res = QBSolv().sample_qubo(Q,
+                                   solver=FixedEmbeddingComposite(system, embedding),
+                                   solver_limit=solver_limit,
+                                   num_reads=20)
     else:
         print('Sampling with classical solver...')
-        res = QBSolv().sample_qubo(Q, num_repeats=500)
+        res = QBSolv().sample_qubo(Q, num_repeats=20)
 
     # check constraints
     samples = list(res.samples())
     energy = list(res.data_vectors['energy'])
-    result = res.first
-    min_energy = result.energy
-    result_arr = np.array([result.sample[key] for key in result.sample.keys()])  #get_pos_bits(result)
-    violations = check_constraints(result_arr, save=False)
-    print('Minimum Energy = {}'.format(min_energy))
-    print(violations)
-    print('=======================================================================================')
 
     i = 0
-    n_print = 0
+    n_print = 20
     for sample in res.data(fields=['sample', 'energy'], sorted_by='energy'):
         if i < n_print:
             sample_arr = get_pos_bits(sample)

@@ -143,7 +143,7 @@ if __name__ == "__main__":
     # 3 degree term
     J_3D = {}
 
-    depth, hight, width = (3, 5, 4)
+    depth, hight, width = (3, 4, 4)
     grid = np.arange(depth * hight * width).reshape((depth, hight, width))
     w_ori = -hight * width * 1000
     w_each = 0
@@ -152,11 +152,7 @@ if __name__ == "__main__":
     w_near = 1
     w_same = 100
     w_sameori = hight * width * 1000
-    origin = (
-        ((0, 0), (3, 3)),
-        ((0, 1), (2, 1)),
-        ((0, 2), (2, 2)),
-    )
+    origin = (((0, 0), (3, 3)), ((0, 1), (2, 1)), ((0, 2), (2, 2)))
     use_qpu = True
     # collect all params used to define puzzle, qubo weights and solver type
     params = ["w_ori", "w_each", "w_minlen", "w_orinear", "w_near", "w_same", "w_sameori", "origin", "use_qpu"]
@@ -186,20 +182,23 @@ if __name__ == "__main__":
     print(J)
 
     if use_qpu:
-        # solver_limit = 50
-        # G = nx.complete_graph(solver_limit)
-        #system = DWaveSampler()
-        #embedding = minorminer.find_embedding(J.keys(), system.edgelist)
-        #print(embedding)
-        # res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit)
-        res = EmbeddingComposite(DWaveSampler()).sample_qubo(J, num_reads=10000)
+        solver_limit = 205
+        G = nx.complete_graph(solver_limit)
+        system = DWaveSampler()
+        embedding = minorminer.find_embedding(J.keys(), system.edgelist)
+        print(embedding)
+        res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit, num_reads=5000)
+        #res = EmbeddingComposite(DWaveSampler()).sample_qubo(J, num_reads=20)
     else:
-        res = QBSolv().sample_qubo(J, num_repeats=1000)
+        res = QBSolv().sample_qubo(J, num_repeats=2000)
     samples = list(res.samples())
     energy = list(res.data_vectors['energy'])
-    print(samples)
+    print(samples[i])
     print(energy)
+    energy, samples = zip(*sorted(zip(energy, samples), key=lambda k: k[0]))
     for i in range(len(samples)):
+        if i > 20:
+            break
         result = samples[i]
         output = np.zeros((hight, width))
         # ignore ancillary variables, which are all negative, only get positive bits

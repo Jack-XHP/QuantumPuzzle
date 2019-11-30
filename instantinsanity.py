@@ -3,7 +3,6 @@ import networkx as nx
 import minorminer
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
-from matplotlib.collections import PatchCollection
 from dwave.system.composites import EmbeddingComposite, FixedEmbeddingComposite
 from dwave.system.samplers import DWaveSampler
 from dwave_qbsolv import QBSolv
@@ -118,7 +117,6 @@ def plot_problem(cubes, edges):
         for colour in colours.keys():
             (x, y, c) = colours[colour]
             ax.scatter(x, y, marker='o', s=256, c=c, edgecolors='k', zorder=5)
-            ax.annotate(colour.upper(), (x, y), annotes[colour])
 
         ax.set_ylim((0.5, 6.5))
         ax.set_xlim((-1, 11))
@@ -132,7 +130,7 @@ def plot_problem(cubes, edges):
     return fig1, axs1
 
 
-def plot_solution(soln, save=False):
+def plot_solution(soln, save=None):
 
     lims = (0, 3, 2.5, 4.5)
     (x_min, x_max, y_min, y_max) = lims
@@ -197,9 +195,10 @@ def plot_solution(soln, save=False):
         ax.title.set_text(title)
         ax.axis('off')
 
-    fig2.tight_layout()
-    if save:
-        fig2.savefig('result/instantinsanity/soln_problem1_subgraphs.png', dpi=400)
+    plt.tight_layout()
+    if save is not None:
+        fname = save + '_graphs.png'
+        fig2.savefig(fname, dpi=400)
     fig2.show()
 
     lbls = ['', 'Left', 'Right', 'Back', 'Front']
@@ -226,9 +225,10 @@ def plot_solution(soln, save=False):
             ax.title.set_text(title)
         ax.axis('off')
 
-    fig3.tight_layout()
-    if save:
-        fig3.savefig('result/instantinsanity/soln_problem1.png', dpi=400)
+    plt.tight_layout()
+    if save is not None:
+        fname = save + '.png'
+        fig3.savefig(fname, dpi=400)
     fig3.show()
 
     return fig2, axs2, fig3, axs3
@@ -276,7 +276,7 @@ def graph_plot(axes, e1, e2, lims=(6, 9, 2.5, 4.5), lbl_edge=None):
     return axes
 
 
-def check_constraints(proposal, save=False):
+def check_constraints(proposal, save=None, plot_soln=False):
     """
     Given a solution (array of binary variables), returns dictionary containing counts of constraint violations
     :param proposal: array of binary variables proposed as a solution to the problem instance
@@ -315,7 +315,6 @@ def check_constraints(proposal, save=False):
 
     # each subgraph has all four colours each with degree 2
     colour_counts = colour_counts.reshape((n, offset))[:, 6:]
-    print(colour_counts)
     c_count = np.count_nonzero((np.sum(colour_counts, axis=0) != 2))
     violations['total'] += c_count
     violations['colour'] = c_count
@@ -329,7 +328,7 @@ def check_constraints(proposal, save=False):
 
     # plot solution if problem instance has n = 4, and no violations
     soln = np.concatenate((edges_r, colours_r * 0), axis=1).flatten()
-    if n == 4 and violations['total'] == 0:
+    if n == 4 and violations['total'] == 0 and plot_soln:
         _, _, _, _ = plot_solution(soln, save=save)
 
     return violations
@@ -367,17 +366,15 @@ if __name__ == "__main__":
         _, _ = plot_problem(cubes, edges)
 
     # use qpu or not
-    use_qpu = False
     use_qpu = True
     use_best = True
 
     if use_qpu or not use_best:
         # penalty weights
-        w_ev = 1  # edge inclusion implies vertex inclusion
-        w_ab = 1  # edge in subgraph A should exclude it from subgraph B
+        w_ev = -1  # edge inclusion implies vertex inclusion
+        w_ab = 10  # edge in subgraph A should exclude it from subgraph B
         w_colour = 1  # each subgraph has all four colours
-        w_cube = 1  # one and only one edge from each cube in a subgraph
-        (w_ev, w_ab, w_colour, w_cube) = (-1, 10, 1, 2)
+        w_cube = 2  # one and only one edge from each cube in a subgraph
     else:
         (w_ev, w_ab, w_colour, w_cube) = (-1, 10, 1, 2)
 
@@ -442,32 +439,71 @@ if __name__ == "__main__":
 
     if use_qpu:
         print('Sampling with QPU...')
+        sampler = 'qpu'
         solver_limit = 56
         G = nx.complete_graph(solver_limit)
         system = DWaveSampler()
         embedding = minorminer.find_embedding(Q.keys(), system.edgelist)
-        print(embedding)
+        #print(embedding)
         res = QBSolv().sample_qubo(Q,
                                    solver=FixedEmbeddingComposite(system, embedding),
                                    solver_limit=solver_limit,
-                                   num_reads=20)
+                                   num_reads=1000)
+
     else:
         print('Sampling with classical solver...')
-        res = QBSolv().sample_qubo(Q, num_repeats=20)
+        sampler = 'sim'
+        res = QBSolv().sample_qubo(Q, num_repeats=1000)
 
     # check constraints
     samples = list(res.samples())
     energy = list(res.data_vectors['energy'])
 
-    i = 0
     n_print = 20
-    for sample in res.data(fields=['sample', 'energy'], sorted_by='energy'):
-        if i < n_print:
-            sample_arr = get_pos_bits(sample)
-            violations = check_constraints(sample_arr, save=False)
+    energies = []
+    n_violations = []
+    n_occ = []
+    for num, sample in enumerate(res.data(fields=['sample', 'energy', 'num_occurrences'], sorted_by='energy')):
+        if num < n_print:
+            sample_arr = np.array([sample.sample[key] for key in sample.sample.keys()])
+            violations = check_constraints(sample_arr,
+                                           save=None, #save='result/instantinsanity/soln_problem{0}{1}'.format(num, sampler),
+                                           plot_soln=False)
+            energy = sample.energy
+
+            if num ==0:
+                n_occ.append(sample.num_occurrences)
+            elif energy == energies[-1]:
+                n_occ[-1] += sample.num_occurrences
+            else:
+                n_occ.append(sample.num_occurrences)
+
+            energies.append(energy)
+            n_violations.append(violations['total'])
             print('Energy = {}'.format(sample.energy))
-            print(violations)
+            print('constraint violations = {}'.format(violations))
             print('=======================================================================================')
-        i += 1
+
+
+    res_fig = plt.figure(figsize=(10,10))
+    x = np.unique(energies)
+    plt.bar(x, n_occ, color='#8FAAD9')
+    plt.xlabel('energy')
+    plt.ylabel('number of samples')
+    plt.xticks(x, x)
+    plt.tight_layout()
+    plt.savefig('result/instantinsanity/sample_hist{}.png'.format(sampler), dpi=400)
+    plt.show()
+    print('Energies = {}'.format(energies))
+
+    res_fig = plt.figure(figsize=(10,10))
+    plt.scatter(n_violations, energies)
+    plt.xlabel('constraint violations')
+    plt.ylabel('energy')
+    plt.tight_layout()
+    plt.savefig('result/instantinsanity/energy_levels{}.png'.format(sampler), dpi=400)
+    plt.show()
+    print('Energies = {}'.format(energies))
+
 
 

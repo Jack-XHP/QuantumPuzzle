@@ -1,3 +1,9 @@
+"""
+author: Collin Wilson
+email: collin.wilson@mail.utoronto.ca
+Github: https://github.com/cwilson51
+"""
+
 import numpy as np
 import networkx as nx
 import minorminer
@@ -323,22 +329,31 @@ if __name__ == "__main__":
     colour = np.arange(n)
     cube = np.arange(n)
 
-    colours = {'r': 0, 'g': 1, 'b': 2, 'y': 3}
+    colours = {'r': 0, 'g': 1, 'b': 2, 'y': 3, 'w': 4, 'm': 5}
     edges = [('right', 'left'), ('front', 'back'), ('bottom', 'top')]
     cube_sides = ['left', 'right', 'back',  'front', 'bottom', 'top']
 
     # cube definitions
+    # n=4 problem shown in paper
     cube0 = {'left': 'r', 'right': 'g', 'back': 'b', 'front': 'y', 'bottom': 'r', 'top': 'r'}
     cube1 = {'left': 'r', 'right': 'b', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'r'}
     cube2 = {'left': 'b', 'right': 'r', 'back': 'y', 'front': 'b', 'bottom': 'g', 'top': 'g'}
     cube3 = {'left': 'g', 'right': 'r', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'b'}
-    edge_mappings = {}
     cubes = [cube0, cube1, cube2, cube3]
+
+    #
+    # cube0 = {'left': 'r', 'right': 'g', 'back': 'b', 'front': 'y', 'bottom': 'w', 'top': 'r'}
+    # cube1 = {'left': 'r', 'right': 'w', 'back': 'g', 'front': 'w', 'bottom': 'y', 'top': 'r'}
+    # cube2 = {'left': 'w', 'right': 'r', 'back': 'y', 'front': 'b', 'bottom': 'g', 'top': 'g'}
+    # cube3 = {'left': 'g', 'right': 'r', 'back': 'g', 'front': 'y', 'bottom': 'y', 'top': 'w'}
+    # cubes = [cube0, cube1, cube2, cube3]
+
+    edge_mappings = {}
     if n == 3:
         _, _ = plot_problem(cubes, edges)
 
     # use qpu or not
-    use_qpu = True
+    use_qpu = False
     use_best = True
 
     if use_qpu or not use_best:

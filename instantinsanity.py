@@ -1,4 +1,7 @@
 """
+Solves the n = 4 Instant Insanity puzzle
+In progress: algorithm can solve higher n problems, but problem definition needs cleaning up to add higher n funtionality
+
 author: Collin Wilson
 email: collin.wilson@mail.utoronto.ca
 Github: https://github.com/cwilson51
@@ -320,6 +323,7 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size': 22})
 
     # Define problem
+    #TODO generalize problem definition
     n = 4  # number of cubes/colours
     n_sides = 6
     n_edges = n_sides // 2
@@ -329,7 +333,7 @@ if __name__ == "__main__":
     colour = np.arange(n)
     cube = np.arange(n)
 
-    colours = {'r': 0, 'g': 1, 'b': 2, 'y': 3, 'w': 4, 'm': 5}
+    colours = {'r': 0, 'g': 1, 'b': 2, 'y': 3}  #, 'w': 4, 'm': 5}
     edges = [('right', 'left'), ('front', 'back'), ('bottom', 'top')]
     cube_sides = ['left', 'right', 'back',  'front', 'bottom', 'top']
 

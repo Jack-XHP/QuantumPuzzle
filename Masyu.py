@@ -139,7 +139,7 @@ use_qpu=True
 if use_qpu:
     solver_limit = 256
     G = nx.complete_graph(solver_limit)
-    system = DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218')
+    system = DWaveSampler(token='DEV-***') #Replace 'DEV-***' by the API token
     embedding = minorminer.find_embedding(D.keys(), system.edgelist)
     print(embedding)
     res = QBSolv().sample_qubo(D, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit,token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218', num_reads=20)

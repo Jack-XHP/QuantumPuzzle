@@ -141,7 +141,7 @@ if use_qpu:
     embedding = minorminer.find_embedding(J.keys(), system.edgelist)
     print(embedding)
     res = QBSolv().sample_qubo(J, solver=FixedEmbeddingComposite(system, embedding), solver_limit=solver_limit, num_reads=3000)
-    #Emb = EmbeddingComposite(DWaveSampler(token='DEV-6189564036d19f88b3a555b4175a353d6d2c0218'))
+    #Emb = EmbeddingComposite(DWaveSampler(token='DEV-*****')) #add API Token
     #res = Emb.sample_qubo(D, num_reads=10000)
 else:
     res = QBSolv().sample_qubo(J, num_repeats=3000)

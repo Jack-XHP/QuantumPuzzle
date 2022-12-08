@@ -3,7 +3,6 @@ Solves the n = 4 Instant Insanity puzzle
 In progress: algorithm can solve higher n problems, but problem definition needs cleaning up to add higher n funtionality
 
 author: Collin Wilson
-email: collin.wilson@mail.utoronto.ca
 Github: https://github.com/cwilson51
 """
 
